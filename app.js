@@ -1,168 +1,53 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const argon2 = require('argon2');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var mongoose = require('mongoose');
 
-// Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  
-  if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' });
-  
-  try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = verified;
-    next();
-  } catch (err) {
-    res.status(403).json({ message: 'Invalid token' });
-  }
-};
+require('dotenv').config()
 
-// Register new user
-router.post('/register', async (req, res) => {
-  try {
-    const { username, password, type = 'user' } = req.body;
-    
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Username already exists' });
-    }
-    
-    const hashedPassword = await argon2.hash(password);
-    
-    const user = new User({
-      username,
-      password: hashedPassword,
-      type,
-      createdAt: new Date()
-    });
-    
-    await user.save();
-    
-    res.status(201).json({ message: 'User created successfully', userId: user._id });
-  } catch (error) {
-    console.error('Error registering user:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var authRoutes = require('./routes/auth');
+
+var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_CONNECT)
+ .then(() => console.log('Connected to MongoDB'))
+ .catch(err => console.error('Could not connect to MongoDB', err));
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
 });
 
-// Login user
-router.post('/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid username or password' });
-    }
-    
-    const validPassword = await argon2.verify(user.password, password);
-    if (!validPassword) {
-      return res.status(400).json({ message: 'Invalid username or password' });
-    }
-    
-    const token = jwt.sign(
-      { _id: user._id, username: user.username, type: user.type },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-    
-    res.status(200).json({ 
-      message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        type: user.type
-      }
-    });
-  } catch (error) {
-    console.error('Error logging in:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-// Get current user profile
-router.post('/profile', authenticateToken, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    res.status(200).json(user);
-  } catch (error) {
-    console.error('Error getting profile:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
 });
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/auth', authRoutes);
 
-// Update user
-router.post('/update', authenticateToken, async (req, res) => {
-  try {
-    const { username, password, type } = req.body;
-    const updateData = {};
-    
-    if (username) updateData.username = username;
-    if (type) updateData.type = type;
-    if (password) updateData.password = await argon2.hash(password);
-    
-    const user = await User.findByIdAndUpdate(
-      req.user._id, 
-      updateData,
-      { new: true }
-    ).select('-password');
-    
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    res.status(200).json({ 
-      message: 'User updated successfully',
-      user
-    });
-  } catch (error) {
-    console.error('Error updating user:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
 
-// Admin route to get all users
-router.post('/all', authenticateToken, async (req, res) => {
-  try {
-    if (req.user.type !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
-    }
-    
-    const users = await User.find().select('-password');
-    res.status(200).json(users);
-  } catch (error) {
-    console.error('Error getting users:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-// Admin route to delete user
-router.post('/delete', authenticateToken, async (req, res) => {
-  try {
-    if (req.user.type !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
-    }
-    
-    const { userId } = req.body;
-    const deletedUser = await User.findByIdAndDelete(userId);
-    if (!deletedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    res.status(200).json({ message: 'User deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-module.exports = router;
+module.exports = app;
