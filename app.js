@@ -30,6 +30,13 @@ mongoose.connect(process.env.MONGO_CONNECT)
  .then(() => console.log('Connected to MongoDB'))
  .catch(err => console.error('Could not connect to MongoDB', err));
 
+
+// Define routes BEFORE error handlers
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/auth', authRoutes);
+
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -45,9 +52,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/auth', authRoutes);
 
 
 module.exports = app;
