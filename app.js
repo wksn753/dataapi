@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
+var cors = require('cors')
 
 require('dotenv').config()
 
@@ -12,7 +13,7 @@ var usersRouter = require('./routes/users');
 var authRoutes = require('./routes/auth');
 
 var app = express();
-
+app.use(cors()); // Enable CORS for all endpoints
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
