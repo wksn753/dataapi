@@ -7,7 +7,7 @@ const raceSchema = new Schema({
     startTime: Date,
     endTime: Date, // Nullable
     description: String,
-    racers: [{ type: ObjectId, ref: "Racer" }], // Array of racer IDs
+    racers: [{ type: ObjectId, ref: "User" }], // Array of racer IDs
     createdAt: Date
 })
 
