@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 const { Schema, model, Types } = mongoose;
 
 const raceSchema = new Schema({
@@ -11,4 +11,4 @@ const raceSchema = new Schema({
 });
 
 const Race = model('Race', raceSchema);
-export default Race;
+module.exports = Race;
