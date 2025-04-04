@@ -1,15 +1,14 @@
 import mongoose from "mongoose";
-const {Schema,model}=mongoose
+const { Schema, model, Types } = mongoose;
 
 const raceSchema = new Schema({
-    _id: ObjectId,
-    name: String,
-    startTime: Date,
-    endTime: Date, // Nullable
-    description: String,
-    racers: [{ type: ObjectId, ref: "User" }], // Array of racer IDs
-    createdAt: Date
-})
+  name: String,
+  startTime: Date,
+  endTime: Date, // Nullable
+  description: String,
+  racers: [{ type: Types.ObjectId, ref: "User" }],
+  createdAt: Date
+});
 
 const Race = model('Race', raceSchema);
 export default Race;
