@@ -190,4 +190,8 @@ router.post('/remove-racer', authenticateToken, async (req, res) => {
   }
 });
 
+
+router.post('/', function(req, res, next) {
+  res.json({ title: 'Express' });
+});
 module.exports = router;
