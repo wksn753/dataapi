@@ -66,7 +66,6 @@ router.post('/all', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 // Get specific race by ID
 router.post('/get-race', authenticateToken, async (req, res) => {
   try {
@@ -81,7 +80,6 @@ router.post('/get-race', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 // Update race (admin only)
 router.post('/update', authenticateToken, async (req, res) => {
   try {
