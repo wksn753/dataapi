@@ -29,13 +29,21 @@ router.post('/create', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
     }
 
-    const { name, startTime, endTime, description } = req.body;
+    const { name, startTime, endTime, description, startingPoint, endingPoint } = req.body;
     
     const race = new Race({
       name,
       startTime,
       endTime: endTime || null,
       description,
+      startingPoint: startingPoint ? {
+        latitude: startingPoint.latitude,
+        longitude: startingPoint.longitude
+      } : undefined,
+      endingPoint: endingPoint ? {
+        latitude: endingPoint.latitude,
+        longitude: endingPoint.longitude
+      } : undefined,
       racers: [],
       createdAt: new Date()
     });
@@ -81,13 +89,25 @@ router.post('/update', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
     }
 
-    const { id, name, startTime, endTime, description } = req.body;
+    const { id, name, startTime, endTime, description, startingPoint, endingPoint } = req.body;
     const updateData = {};
 
     if (name) updateData.name = name;
     if (startTime) updateData.startTime = startTime;
     if (endTime !== undefined) updateData.endTime = endTime;
     if (description) updateData.description = description;
+    if (startingPoint !== undefined) {
+      updateData.startingPoint = startingPoint ? {
+        latitude: startingPoint.latitude,
+        longitude: startingPoint.longitude
+      } : null;
+    }
+    if (endingPoint !== undefined) {
+      updateData.endingPoint = endingPoint ? {
+        latitude: endingPoint.latitude,
+        longitude: endingPoint.longitude
+      } : null;
+    }
 
     const race = await Race.findByIdAndUpdate(
       id,
@@ -190,8 +210,8 @@ router.post('/remove-racer', authenticateToken, async (req, res) => {
   }
 });
 
-
 router.post('/', function(req, res, next) {
   res.json({ title: 'Express' });
 });
+
 module.exports = router;
