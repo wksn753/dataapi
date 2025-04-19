@@ -208,6 +208,108 @@ router.post('/remove-racer', authenticateToken, async (req, res) => {
   }
 });
 
+
+// Record racer start time
+router.post('/start-racer', authenticateToken, async (req, res) => {
+  try {
+    const { id, racerId } = req.body;
+
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({ message: 'Race not found' });
+    }
+
+    const racer = race.racers.find(r => r.userId.toString() === racerId);
+    if (!racer) {
+      return res.status(400).json({ message: 'Racer not found in race' });
+    }
+
+    if (racer.startTime) {
+      return res.status(400).json({ message: 'Racer already started' });
+    }
+
+    racer.startTime = new Date();
+    await race.save();
+
+    res.status(200).json({ message: 'Racer start time recorded' });
+  } catch (error) {
+    console.error('Error recording start time:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Record racer end time
+router.post('/end-racer', authenticateToken, async (req, res) => {
+  try {
+    const { id, racerId } = req.body;
+
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({ message: 'Race not found' });
+    }
+
+    const racer = race.racers.find(r => r.userId.toString() === racerId);
+    if (!racer) {
+      return res.status(400).json({ message: 'Racer not found in race' });
+    }
+
+    if (!racer.startTime) {
+      return res.status(400).json({ message: 'Racer has not started' });
+    }
+
+    if (racer.endTime) {
+      return res.status(400).json({ message: 'Racer already finished' });
+    }
+
+    racer.endTime = new Date();
+    await race.save();
+
+    res.status(200).json({ message: 'Racer end time recorded' });
+  } catch (error) {
+    console.error('Error recording end time:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+// Get leaderboard for a race
+router.post('/leaderboard', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const race = await Race.findById(id).populate('racers.userId', 'username');
+    if (!race) {
+      return res.status(404).json({ message: 'Race not found' });
+    }
+
+    const leaderboard = race.racers
+      .map(racer => {
+        if (!racer.startTime || !racer.endTime) {
+          return null;
+        }
+        const duration = (new Date(racer.endTime).getTime() - new Date(racer.startTime).getTime()) / 1000; // seconds
+        return {
+          racerId: racer.userId._id,
+          username: racer.userId.username,
+          startTime: racer.startTime,
+          endTime: racer.endTime,
+          duration
+        };
+      })
+      .filter(item => item !== null)
+      .sort((a, b) => a.duration - b.duration);
+
+    res.status(200).json({ 
+      raceName: race.name,
+      leaderboard 
+    });
+  } catch (error) {
+    console.error('Error getting leaderboard:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
 router.post('/', function(req, res, next) {
   res.json({ title: 'Express' });
 });

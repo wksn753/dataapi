@@ -28,7 +28,12 @@ const raceSchema = new Schema({
   endingPoint: {
     type: coordinateSchema
   },
-  racers: [{ type: Types.ObjectId, ref: "User" }],
+  racers: [{ 
+    type: Types.ObjectId, 
+    ref: "User",
+    startTime: Date, // Nullable, when racer hits end point
+    endTime: Date   // Nullable, when racer hits end point
+   }],
   createdAt: Date
 });
 

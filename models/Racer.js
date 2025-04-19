@@ -6,7 +6,8 @@ const racerSchema = new Schema({
     name: String,
     deviceImei: { type: String, ref: "Device" }, // References Device.imei
     userId: { type: ObjectId, ref: "User" },
-    createdAt: Date
+    createdAt: Date,
+    
 })
 
 const Racer = model('Racer', racerSchema);
