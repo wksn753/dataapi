@@ -208,28 +208,32 @@ router.post('/remove-racer', authenticateToken, async (req, res) => {
   }
 });
 
-
 // Record racer start time
 router.post('/start-racer', authenticateToken, async (req, res) => {
   try {
     const { id, racerId } = req.body;
+    console.log(`Starting racer ${racerId} for race ${id}`);
 
     const race = await Race.findById(id);
     if (!race) {
+      console.warn(`Race not found: ${id}`);
       return res.status(404).json({ message: 'Race not found' });
     }
 
     const racer = race.racers.find(r => r.userId.toString() === racerId);
     if (!racer) {
+      console.warn(`Racer not found in race: ${racerId}`);
       return res.status(400).json({ message: 'Racer not found in race' });
     }
 
     if (racer.startTime) {
+      console.warn(`Racer already started: ${racerId}`);
       return res.status(400).json({ message: 'Racer already started' });
     }
 
     racer.startTime = new Date();
     await race.save();
+    console.log(`Start time recorded for racer ${racerId}`);
 
     res.status(200).json({ message: 'Racer start time recorded' });
   } catch (error) {
@@ -242,27 +246,33 @@ router.post('/start-racer', authenticateToken, async (req, res) => {
 router.post('/end-racer', authenticateToken, async (req, res) => {
   try {
     const { id, racerId } = req.body;
+    console.log(`Ending racer ${racerId} for race ${id}`);
 
     const race = await Race.findById(id);
     if (!race) {
+      console.warn(`Race not found: ${id}`);
       return res.status(404).json({ message: 'Race not found' });
     }
 
     const racer = race.racers.find(r => r.userId.toString() === racerId);
     if (!racer) {
+      console.warn(`Racer not found in race: ${racerId}`);
       return res.status(400).json({ message: 'Racer not found in race' });
     }
 
     if (!racer.startTime) {
+      console.warn(`Racer has not started: ${racerId}`);
       return res.status(400).json({ message: 'Racer has not started' });
     }
 
     if (racer.endTime) {
+      console.warn(`Racer already finished: ${racerId}`);
       return res.status(400).json({ message: 'Racer already finished' });
     }
 
     racer.endTime = new Date();
     await race.save();
+    console.log(`End time recorded for racer ${racerId}`);
 
     res.status(200).json({ message: 'Racer end time recorded' });
   } catch (error) {
@@ -270,7 +280,6 @@ router.post('/end-racer', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 
 // Get leaderboard for a race
 router.post('/leaderboard', authenticateToken, async (req, res) => {
