@@ -219,12 +219,14 @@ router.post('/start-racer', authenticateToken, async (req, res) => {
       console.warn(`Race not found: ${id}`);
       return res.status(404).json({ message: 'Race not found' });
     }
+    console.log(`found race ${id}`);
 
-    const racer = race.racers.find(r => r.userId.toString() === racerId);
+    const racer = race.racers.find(r => r._id.toString() === racerId);
     if (!racer) {
       console.warn(`Racer not found in race: ${racerId}`);
       return res.status(400).json({ message: 'Racer not found in race' });
     }
+    console.log(`found racer ${racerId} for race ${id}`);
 
     if (racer.startTime) {
       console.warn(`Racer already started: ${racerId}`);
