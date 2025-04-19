@@ -256,7 +256,7 @@ router.post('/end-racer', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Race not found' });
     }
 
-    const racer = race.racers.find(r => r.userId.toString() === racerId);
+    const racer = race.racers.find(r => r._id.toString() === racerId);
     if (!racer) {
       console.warn(`Racer not found in race: ${racerId}`);
       return res.status(400).json({ message: 'Racer not found in race' });
