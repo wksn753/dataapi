@@ -239,20 +239,19 @@ router.post('/remove-racer', authenticateToken, async (req, res) => {
   }
 });
 
-
 // Record racer start time
 router.post('/start-racer', authenticateToken, async (req, res) => {
   try {
-    const { id, racerId } = req.body;
+    const { id, racerId, startTime } = req.body;
     console.log(`Starting racer ${racerId} for race ${id}`);
-
+    
     const race = await Race.findById(id);
     if (!race) {
       console.warn(`Race not found: ${id}`);
       return res.status(404).json({ message: 'Race not found' });
     }
     console.log(`found race ${id}`);
-
+    
     // Find the racer entry in the racers array
     const racerEntry = race.racers.find(r => r.userId.toString() === racerId);
     if (!racerEntry) {
@@ -260,17 +259,35 @@ router.post('/start-racer', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Racer not found in race' });
     }
     console.log(`found racer ${racerId} for race ${id}`);
-
+    
     if (racerEntry.startTime) {
       console.warn(`Racer already started: ${racerId}`);
       return res.status(400).json({ message: 'Racer already started' });
     }
-
-    racerEntry.startTime = new Date();
+    
+    // Check and validate date format if startTime is provided
+    let finalStartTime;
+    if (startTime) {
+      const parsedDate = new Date(startTime);
+      
+      // Check if date is valid (not Invalid Date)
+      if (isNaN(parsedDate.getTime())) {
+        console.warn(`Invalid date format provided: ${startTime}`);
+        return res.status(400).json({ message: 'Invalid date format' });
+      }
+      finalStartTime = parsedDate;
+    } else {
+      finalStartTime = new Date();
+    }
+    
+    racerEntry.startTime = finalStartTime;
     await race.save();
-    console.log(`Start time recorded for racer ${racerId}`);
-
-    res.status(200).json({ message: 'Racer start time recorded' });
+    
+    console.log(`Start time recorded for racer ${racerId}: ${racerEntry.startTime}`);
+    res.status(200).json({
+      message: 'Racer start time recorded',
+      startTime: racerEntry.startTime
+    });
   } catch (error) {
     console.error('Error recording start time:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -280,43 +297,60 @@ router.post('/start-racer', authenticateToken, async (req, res) => {
 // Record racer end time
 router.post('/end-racer', authenticateToken, async (req, res) => {
   try {
-    const { id, racerId } = req.body;
+    const { id, racerId, endTime } = req.body;
     console.log(`Ending racer ${racerId} for race ${id}`);
-
+    
     const race = await Race.findById(id);
     if (!race) {
       console.warn(`Race not found: ${id}`);
       return res.status(404).json({ message: 'Race not found' });
     }
-
+    
     // Find the racer entry in the racers array
     const racerEntry = race.racers.find(r => r.userId.toString() === racerId);
     if (!racerEntry) {
       console.warn(`Racer not found in race: ${racerId}`);
       return res.status(400).json({ message: 'Racer not found in race' });
     }
-
+    
     if (!racerEntry.startTime) {
       console.warn(`Racer has not started: ${racerId}`);
       return res.status(400).json({ message: 'Racer has not started' });
     }
-
+    
     if (racerEntry.endTime) {
       console.warn(`Racer already finished: ${racerId}`);
       return res.status(400).json({ message: 'Racer already finished' });
     }
-
-    racerEntry.endTime = new Date();
+    
+    // Check and validate date format if endTime is provided
+    let finalEndTime;
+    if (endTime) {
+      const parsedDate = new Date(endTime);
+      
+      // Check if date is valid (not Invalid Date)
+      if (isNaN(parsedDate.getTime())) {
+        console.warn(`Invalid date format provided: ${endTime}`);
+        return res.status(400).json({ message: 'Invalid date format' });
+      }
+      finalEndTime = parsedDate;
+    } else {
+      finalEndTime = new Date();
+    }
+    
+    racerEntry.endTime = finalEndTime;
     await race.save();
-    console.log(`End time recorded for racer ${racerId}`);
-
-    res.status(200).json({ message: 'Racer end time recorded' });
+    
+    console.log(`End time recorded for racer ${racerId}: ${racerEntry.endTime}`);
+    res.status(200).json({ 
+      message: 'Racer end time recorded',
+      endTime: racerEntry.endTime 
+    });
   } catch (error) {
     console.error('Error recording end time:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 // Get leaderboard for a race
 router.post('/leaderboard', authenticateToken, async (req, res) => {
   try {
