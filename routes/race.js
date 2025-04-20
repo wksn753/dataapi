@@ -144,6 +144,7 @@ router.post('/delete', authenticateToken, async (req, res) => {
   }
 });
 
+
 // Add racer to race
 router.post('/add-racer', authenticateToken, async (req, res) => {
   try {
@@ -161,14 +162,20 @@ router.post('/add-racer', authenticateToken, async (req, res) => {
     }
 
     // Check if racer is already in the race
-    if (race.racers.includes(racerId)) {
+    if (race.racers.some(r => r.userId.toString() === racerId)) {
       return res.status(400).json({ message: 'Racer already in race' });
     }
 
-    race.racers.push(racerId);
+    // Add racer with proper structure
+    race.racers.push({
+      userId: racerId,
+      startTime: null,
+      endTime: null
+    });
+    
     await race.save();
 
-    const updatedRace = await Race.findById(id).populate('racers', 'username');
+    const updatedRace = await Race.findById(id).populate('racers.userId', 'username');
     res.status(200).json({ 
       message: 'Racer added successfully',
       race: updatedRace 
@@ -189,15 +196,17 @@ router.post('/remove-racer', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Race not found' });
     }
 
-    const racerIndex = race.racers.indexOf(racerId);
+    // Find the racer entry by userId
+    const racerIndex = race.racers.findIndex(r => r.userId.toString() === racerId);
     if (racerIndex === -1) {
       return res.status(400).json({ message: 'Racer not found in race' });
     }
 
+    // Remove the racer from the array
     race.racers.splice(racerIndex, 1);
     await race.save();
 
-    const updatedRace = await Race.findById(id).populate('racers', 'username');
+    const updatedRace = await Race.findById(id).populate('racers.userId', 'username');
     res.status(200).json({ 
       message: 'Racer removed successfully',
       race: updatedRace 
@@ -219,27 +228,21 @@ router.post('/start-racer', authenticateToken, async (req, res) => {
       console.warn(`Race not found: ${id}`);
       return res.status(404).json({ message: 'Race not found' });
     }
-    
-    // Check if racer is in the race list
-    const racerExists = race.racers.some(entry => 
-      entry.userId && entry.userId.toString() === racerId
-    );
-    
-    if (!racerExists) {
+    console.log(`found race ${id}`);
+
+    // Find the racer entry in the racers array
+    const racerEntry = race.racers.find(r => r.userId.toString() === racerId);
+    if (!racerEntry) {
       console.warn(`Racer not found in race: ${racerId}`);
       return res.status(400).json({ message: 'Racer not found in race' });
     }
-    
-    // Find racer entry or create one
-    let racerEntry = race.racers.find(entry => 
-      entry.userId && entry.userId.toString() === racerId
-    );
-    
+    console.log(`found racer ${racerId} for race ${id}`);
+
     if (racerEntry.startTime) {
       console.warn(`Racer already started: ${racerId}`);
       return res.status(400).json({ message: 'Racer already started' });
     }
-    
+
     racerEntry.startTime = new Date();
     await race.save();
     console.log(`Start time recorded for racer ${racerId}`);
@@ -250,7 +253,6 @@ router.post('/start-racer', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 
 // Record racer end time
 router.post('/end-racer', authenticateToken, async (req, res) => {
@@ -264,37 +266,33 @@ router.post('/end-racer', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Race not found' });
     }
 
-    // Check if racer exists in the race
-    const racerIndex = race.racers.findIndex(r => r.toString() === racerId);
-    if (racerIndex === -1) {
+    // Find the racer entry in the racers array
+    const racerEntry = race.racers.find(r => r.userId.toString() === racerId);
+    if (!racerEntry) {
       console.warn(`Racer not found in race: ${racerId}`);
       return res.status(400).json({ message: 'Racer not found in race' });
     }
 
-    // Get racer from racers array (just the ID)
-    const racerId2 = race.racers[racerIndex];
-    
-    // Now we need to update this racer's entry
-    // Find the racer by ID in the racers array
-    await Race.findOneAndUpdate(
-      { _id: id, "racers": racerId2 },
-      { $set: { "racers.$": { 
-        _id: racerId2,
-        startTime: racer.startTime || new Date(), // Keep existing start time or set one
-        endTime: new Date() 
-      }}},
-      { new: true }
-    );
+    if (!racerEntry.startTime) {
+      console.warn(`Racer has not started: ${racerId}`);
+      return res.status(400).json({ message: 'Racer has not started' });
+    }
 
+    if (racerEntry.endTime) {
+      console.warn(`Racer already finished: ${racerId}`);
+      return res.status(400).json({ message: 'Racer already finished' });
+    }
+
+    racerEntry.endTime = new Date();
+    await race.save();
     console.log(`End time recorded for racer ${racerId}`);
+
     res.status(200).json({ message: 'Racer end time recorded' });
   } catch (error) {
     console.error('Error recording end time:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
-
 
 // Get leaderboard for a race
 router.post('/leaderboard', authenticateToken, async (req, res) => {
