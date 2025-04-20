@@ -30,6 +30,7 @@ const raceSchema = new Schema({
   },
   racers: [{
     userId: { type: Types.ObjectId, ref: "User" },
+    username:String,
     startTime: Date,
     endTime: Date
   }],

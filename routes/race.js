@@ -59,13 +59,17 @@ router.post('/create', authenticateToken, async (req, res) => {
 // Get all races
 router.post('/all', authenticateToken, async (req, res) => {
   try {
-    const races = await Race.find().populate('racers', 'username');
+    const races = await Race.find()
+      .populate('racers.userId', 'username'); // Change to populate the nested userId field
+    
     res.status(200).json(races);
   } catch (error) {
     console.error('Error getting races:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+
 // Get specific race by ID
 router.post('/get-race', authenticateToken, async (req, res) => {
   try {
@@ -169,10 +173,11 @@ router.post('/add-racer', authenticateToken, async (req, res) => {
     if (race.racers.some(r => r.userId.toString() === racerId.toString())) {
       return res.status(400).json({ message: 'Racer already in race' });
     }
-
+    const userName=racer.username;
     // Add racer with proper structure
     race.racers.push({
       userId: racerId,
+      username:userName,
       startTime: undefined,
       endTime: undefined
     });
