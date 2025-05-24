@@ -84,6 +84,8 @@ router.post('/get-race', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+
 // Update race (admin only)
 router.post('/update', authenticateToken, async (req, res) => {
   try {
@@ -388,6 +390,22 @@ router.post('/leaderboard', authenticateToken, async (req, res) => {
   }
 });
 
+router.post('/getRacerRaces', authenticateToken, async (req, res) => {
+  try {
+    const { racerId } = req.body;
+    const user = await User.findById(racerId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const races = await Race.find({ 'racers.userId': racerId }).populate('racers.userId', 'username');
+    res.status(200).json({ races });
+    
+  }catch(error){
+    console.error('Error getting racer races:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+}
+);
 
 router.post('/', function(req, res, next) {
   res.json({ title: 'Express' });
