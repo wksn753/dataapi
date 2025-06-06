@@ -51,6 +51,17 @@ router.post('/register', async (req, res) => {
 });
 
 // Login user
+/**
+ * @swagger
+ * /login:
+ *   get:
+ *     summary: Get all users
+ *     responses:
+ *       200:
+ *         description: Login to get user data
+ *       500:
+ *         description: Server error
+ */
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
