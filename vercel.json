@@ -1,8 +1,7 @@
 {
     "version": 2,
-    "buildCommand": "npm run build", 
+    "buildCommand": "npm run build",
     "installCommand": "npm install",
-    "node": "18.x", 
     "builds": [
       {
         "src": "app.js",
@@ -14,6 +13,5 @@
         "src": "/(.*)",
         "dest": "/"
       }
-      
     ]
   }
