@@ -53,7 +53,7 @@ router.post('/register', async (req, res) => {
 // Login user
 /**
  * @swagger
- * /login:
+ * /auth/login:
  *   post:
  *     summary: Create a new user
  *     requestBody:
@@ -69,7 +69,7 @@ router.post('/register', async (req, res) => {
  *               name:
  *                 type: string
  *                 example: John Doe
- *               email:
+ *               password:
  *                 type: string
  *                 example: 12345
  *     responses:
