@@ -5,10 +5,34 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
 var cors = require('cors');
+const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 require('dotenv').config()
 
+const options = {
+  definition: {
+    openapi: '3.0.0', // Specify the OpenAPI version
+    info: {
+      title: 'Data API Express.js',
+      version: '1.0.0',
+      description: 'A simple REST API for your data',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000', // Update with your actual deployment URL
+        description: 'Development server',
+      },
+      {
+        url: 'https://your-render-app-url.onrender.com', // Replace with your Render URL
+        description: 'Production server',
+      },
+    ],
+  },
+  apis: ['./routes/*.js', './models/*.js', 'app.js'], // Paths to files containing OpenAPI comments (e.g., JSDoc style)
+  // Or if all your route definitions are in app.js, just './app.js'
+};
+const swaggerSpec = swaggerJsdoc(options);
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var authRoutes = require('./routes/auth');
