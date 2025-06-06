@@ -24,7 +24,7 @@ const options = {
         description: 'Development server',
       },
       {
-        url: 'https://your-render-app-url.onrender.com', // Replace with your Render URL
+        url: 'https://dataapi-qy43.onrender.com', // Replace with your Render URL
         description: 'Production server',
       },
     ],
