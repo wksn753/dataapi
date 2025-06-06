@@ -54,19 +54,43 @@ router.post('/register', async (req, res) => {
 /**
  * @swagger
  * /login:
- *   "consumes": [
-          "application/json"
-        ]
- *   post:{
-*      username:string,
-*        password:string
- * }
- *     summary: Get all users
+ *   post:
+ *     summary: Create a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 example: 12345
  *     responses:
- *       200:
- *         description: Login to get user data
- *       500:
- *         description: Server error
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: 1
+ *                 username:
+ *                   type: string
+ *                   example: John Doe
+ *                 type:
+ *                   type: string
+ *                   example: racer
+ *       400:
+ *         description: Invalid input
  */
 router.post('/login', async (req, res) => {
   try {
