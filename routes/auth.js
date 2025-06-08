@@ -28,6 +28,8 @@ const authenticateToken = (req, res, next) => {
  * /auth/register:
  *   post:
  *     summary: Register a new user
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:

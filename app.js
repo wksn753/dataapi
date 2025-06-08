@@ -9,10 +9,9 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 require('dotenv').config()
-
 const options = {
   definition: {
-    openapi: '3.0.0', // Specify the OpenAPI version
+    openapi: '3.0.0',
     info: {
       title: 'Data API Express.js',
       version: '1.0.0',
@@ -20,18 +19,32 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000', // Update with your actual deployment URL
+        url: 'http://localhost:3000',
         description: 'Development server',
       },
       {
-        url: 'https://dataapi-qy43.onrender.com', // Replace with your Render URL
+        url: 'https://dataapi-qy43.onrender.com',
         description: 'Production server',
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
-  apis: ['./routes/*.js', './models/*.js', 'app.js'], // Paths to files containing OpenAPI comments (e.g., JSDoc style)
-  // Or if all your route definitions are in app.js, just './app.js'
+  apis: ['./routes/*.js', './models/*.js', 'app.js'],
 };
+
 const swaggerSpec = swaggerJsdoc(options);
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
