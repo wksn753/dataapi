@@ -23,6 +23,39 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Register new user
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: johndoe
+ *               password:
+ *                 type: string
+ *                 example: secretpassword
+ *               type:
+ *                 type: string
+ *                 example: user
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Username already exists
+ *       500:
+ *         description: Server error
+ */
+
 router.post('/register', async (req, res) => {
   try {
     const { username, password, type = 'user' } = req.body;
@@ -73,24 +106,34 @@ router.post('/register', async (req, res) => {
  *                 type: string
  *                 example: 12345
  *     responses:
- *       201:
- *         description: User created successfully
+ *       200:
+ *         description: Login successful
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                  token:
+ *                   type: string   
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfa
  *                 _id:
  *                   type: string
  *                   example: 1
- *                 username:
- *                   type: string
- *                   example: John Doe
+ *                 user:
+ *                   type: object
+ *                   example: {
+ *                     id: 1,
+ *                     username: 'John Doe',
+ *                     type: 'user'
+ *                   }
  *                 type:
  *                   type: string
  *                   example: racer
  *       400:
- *         description: Invalid input
+ *         description: Invalid Username or Password
  */
 router.post('/login', async (req, res) => {
   try {
@@ -143,6 +186,39 @@ router.post('/profile', authenticateToken, async (req, res) => {
 });
 
 // Update user
+/**
+ * @swagger
+ * /auth/update:
+ *   post:
+ *     summary: Update the authenticated user's information
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       401:
+ *         description: No token provided
+ *       403:
+ *         description: Invalid token
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
 router.post('/update', authenticateToken, async (req, res) => {
   try {
     const { username, password, type } = req.body;
@@ -188,6 +264,38 @@ router.post('/all', authenticateToken, async (req, res) => {
 });
 
 // Admin route to delete user
+/**
+ * @swagger
+ * /auth/delete:
+ *   post:
+ *     summary: Delete a user by ID (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 example: 60b8c0d5b1d4d50015e1a123
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       401:
+ *         description: No token provided
+ *       403:
+ *         description: Access denied or invalid token
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
 router.post('/delete', authenticateToken, async (req, res) => {
   try {
     if (req.user.type !== 'admin') {

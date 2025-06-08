@@ -23,6 +23,54 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Create a new race (admin only)
+/**
+ * @swagger
+ * /raceManagement/create:
+ *   post:
+ *     summary: Create a new race (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               startTime:
+ *                 type: string
+ *                 format: date-time
+ *               endTime:
+ *                 type: string
+ *                 format: date-time
+ *               description:
+ *                 type: string
+ *               startingPoint:
+ *                 type: object
+ *                 properties:
+ *                   latitude:
+ *                     type: number
+ *                   longitude:
+ *                     type: number
+ *               endingPoint:
+ *                 type: object
+ *                 properties:
+ *                   latitude:
+ *                     type: number
+ *                   longitude:
+ *                     type: number
+ *     responses:
+ *       201:
+ *         description: Race created successfully
+ *       401:
+ *         description: Access denied. No token provided.
+ *       403:
+ *         description: Access denied. Admin privileges required.
+ *       500:
+ *         description: Server error
+ */
 router.post('/create', authenticateToken, async (req, res) => {
   try {
     if (req.user.type !== 'admin') {
@@ -57,6 +105,22 @@ router.post('/create', authenticateToken, async (req, res) => {
 });
 
 // Get all races
+/**
+ * @swagger
+ * /raceManagement/all:
+ *   post:
+ *     summary: Get all races
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all races
+ *       401:
+ *         description: Access denied. No token provided.
+ *       500:
+ *         description: Server error
+ */
+
 router.post('/all', authenticateToken, async (req, res) => {
   try {
     const races = await Race.find()
@@ -71,6 +135,30 @@ router.post('/all', authenticateToken, async (req, res) => {
 
 
 // Get specific race by ID
+/**
+ * @swagger
+ * /raceManagement/get-race:
+ *   post:
+ *     summary: Get a specific race by ID
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Race found
+ *       404:
+ *         description: Race not found
+ *       500:
+ *         description: Server error
+ */
 router.post('/get-race', authenticateToken, async (req, res) => {
   try {
     const { id } = req.body;
@@ -87,6 +175,45 @@ router.post('/get-race', authenticateToken, async (req, res) => {
 
 
 // Update race (admin only)
+/**
+ * @swagger
+ * /raceManagement/update:
+ *   post:
+ *     summary: Update a race (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               startTime:
+ *                 type: string
+ *               endTime:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               startingPoint:
+ *                 type: object
+ *               endingPoint:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Race updated successfully
+ *       403:
+ *         description: Admin privileges required
+ *       404:
+ *         description: Race not found
+ *       500:
+ *         description: Server error
+ */
+
 router.post('/update', authenticateToken, async (req, res) => {
   try {
     if (req.user.type !== 'admin') {
@@ -131,6 +258,33 @@ router.post('/update', authenticateToken, async (req, res) => {
 });
 
 // Delete race (admin only)
+
+/**
+ * @swagger
+ * /raceManagement/delete:
+ *   post:
+ *     summary: Delete a race (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Race deleted successfully
+ *       403:
+ *         description: Admin privileges required
+ *       404:
+ *         description: Race not found
+ *       500:
+ *         description: Server error
+ */
 router.post('/delete', authenticateToken, async (req, res) => {
   try {
     if (req.user.type !== 'admin') {
@@ -151,6 +305,34 @@ router.post('/delete', authenticateToken, async (req, res) => {
 });
 
 //add racer
+/**
+ * @swagger
+ * /raceManagement/add-racer:
+ *   post:
+ *     summary: Add a racer to a race
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               racerId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Racer added successfully
+ *       400:
+ *         description: Racer already in race or invalid ID
+ *       404:
+ *         description: Racer or race not found
+ *       500:
+ *         description: Server error
+ */
 router.post('/add-racer', authenticateToken, async (req, res) => {
   try {
     const { id, racerId } = req.body;
@@ -200,6 +382,35 @@ router.post('/add-racer', authenticateToken, async (req, res) => {
 
 
 // Remove racer from race
+/**
+ * @swagger
+ * /raceManagement/remove-racer:
+ *   post:
+ *     summary: Remove a racer from a race
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               racerId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Racer removed successfully
+ *       400:
+ *         description: Racer not found in race or invalid ID
+ *       404:
+ *         description: Race or racer not found
+ *       500:
+ *         description: Server error
+ */
+
 router.post('/remove-racer', authenticateToken, async (req, res) => {
   try {
     const { id, racerId } = req.body;
@@ -242,6 +453,38 @@ router.post('/remove-racer', authenticateToken, async (req, res) => {
 });
 
 // Record racer start time
+/**
+ * @swagger
+ * /raceManagement/start-racer:
+ *   post:
+ *     summary: Record a racer's start time in a race
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               racerId:
+ *                 type: string
+ *               startTime:
+ *                 type: string
+ *                 format: date-time
+ *     responses:
+ *       200:
+ *         description: Racer start time recorded
+ *       400:
+ *         description: Racer already started or invalid date
+ *       404:
+ *         description: Race or racer not found
+ *       500:
+ *         description: Server error
+ */
+
 router.post('/start-racer', authenticateToken, async (req, res) => {
   try {
     const { id, racerId, startTime } = req.body;
@@ -297,6 +540,38 @@ router.post('/start-racer', authenticateToken, async (req, res) => {
 });
 
 // Record racer end time
+
+/**
+ * @swagger
+ * /raceManagement/end-racer:
+ *   post:
+ *     summary: Record a racer's end time in a race
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               racerId:
+ *                 type: string
+ *               endTime:
+ *                 type: string
+ *                 format: date-time
+ *     responses:
+ *       200:
+ *         description: Racer end time recorded
+ *       400:
+ *         description: Racer has not started, already finished, or invalid date
+ *       404:
+ *         description: Race or racer not found
+ *       500:
+ *         description: Server error
+ */
 router.post('/end-racer', authenticateToken, async (req, res) => {
   try {
     const { id, racerId, endTime } = req.body;
@@ -354,6 +629,55 @@ router.post('/end-racer', authenticateToken, async (req, res) => {
   }
 });
 // Get leaderboard for a race
+/**
+ * @swagger
+ * /raceManagement/leaderboard:
+ *   post:
+ *     summary: Get leaderboard for a race
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Leaderboard retrieved
+ *       404:
+ *         description: Race not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /raceManagement/getRacerRaces:
+ *   post:
+ *     summary: Get all races a racer is registered in
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               racerId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: List of races the racer is in
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.post('/leaderboard', authenticateToken, async (req, res) => {
   try {
     const { id } = req.body;
