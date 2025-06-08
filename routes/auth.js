@@ -83,12 +83,11 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login user
 /**
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Create a new user
+ *     summary: Login a user
  *     requestBody:
  *       required: true
  *       content:
@@ -99,9 +98,9 @@ router.post('/register', async (req, res) => {
  *               - username
  *               - password
  *             properties:
- *               name:
+ *               username:
  *                 type: string
- *                 example: John Doe
+ *                 example: johndoe
  *               password:
  *                 type: string
  *                 example: 12345
@@ -116,25 +115,25 @@ router.post('/register', async (req, res) => {
  *                 message:
  *                   type: string
  *                   example: Login successful
- *                  token:
- *                   type: string   
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfa
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *                 _id:
  *                   type: string
  *                   example: 1
  *                 user:
  *                   type: object
- *                   example: {
- *                     id: 1,
- *                     username: 'John Doe',
- *                     type: 'user'
- *                   }
+ *                   example:
+ *                     id: 1
+ *                     username: John Doe
+ *                     type: user
  *                 type:
  *                   type: string
  *                   example: racer
  *       400:
  *         description: Invalid Username or Password
  */
+
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
