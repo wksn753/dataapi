@@ -162,7 +162,7 @@ router.post('/all', authenticateToken, async (req, res) => {
 router.post('/get-race', authenticateToken, async (req, res) => {
   try {
     const { id } = req.body;
-    const race = await Race.findById(id).populate('racers', 'username');
+    const race = await Race.findOne({ name: id }).populate('racers', 'username');
     if (!race) {
       return res.status(404).json({ message: 'Race not found' });
     }
