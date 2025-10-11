@@ -1,5 +1,11 @@
+openapi: 3.0.0
+info:
+  title: Race Management API
+  version: 1.0.0
+  description: API endpoints for managing races and racers.
+
 paths:
-  /getRacerRacesByName:
+  /raceManagement/getRacerRacesByName:
     post:
       summary: Get all races for a specific racer by race name
       description: >
