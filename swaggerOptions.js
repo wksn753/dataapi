@@ -16,7 +16,7 @@ const options = {
   },
   apis: [
     './routes/*.js',
-    './swagger.yaml',
+    './*.yaml',
   ], // Path to your route files with JSDoc comments
 };
 
