@@ -731,6 +731,27 @@ router.post('/getRacerRaces', authenticateToken, async (req, res) => {
 }
 );
 
+router.post("/getRacerRacesByName", authenticateToken, async (req, res) => {
+  try {
+    const { racerName,raceName } = req.body;
+    const user = await User.findOne({ username: racerName });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const races = await Race.find({ "racers.userId": user._id,name:raceName }).populate(
+      "racers.userId",
+      "username"
+    );
+    if(races.length===0){
+      return res.status(404).json({ message: "No races found for this user in the specified race" });
+    }
+    res.status(200).json({ races ,message:"success"});
+  } catch (error) {
+    console.error("Error getting racer races:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 router.post('/', function(req, res, next) {
   res.json({ title: 'Express' });
 });

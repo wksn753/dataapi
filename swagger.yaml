@@ -1,0 +1,91 @@
+paths:
+  /getRacerRacesByName:
+    post:
+      summary: Get all races for a specific racer by race name
+      description: >
+        Retrieves all race records where the given racer has participated in the specified race.  
+        Requires JWT authentication.
+      tags:
+        - Races
+      security:
+        - bearerAuth: []  # JWT token required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - racerName
+                - raceName
+              properties:
+                racerName:
+                  type: string
+                  example: "kevin"
+                  description: Username of the racer to look up.
+                raceName:
+                  type: string
+                  example: "Kampala Rally"
+                  description: Name of the race to filter by.
+      responses:
+        "200":
+          description: Successfully retrieved races for the specified racer.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  races:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "64f2ab1e1a2b3c4d5e6f7g8h"
+                        name:
+                          type: string
+                          example: "Kampala Rally"
+                        racers:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              userId:
+                                type: object
+                                properties:
+                                  _id:
+                                    type: string
+                                    example: "64f2aa1e1a2b3c4d5e6f7g8h"
+                                  username:
+                                    type: string
+                                    example: "kevin"
+                              position:
+                                type: integer
+                                example: 2
+        "404":
+          description: Racer not found or no races found for that racer.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No races found for this user in the specified race
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server error
+                  error:
+                    type: string
+                    example: Error getting racer races
