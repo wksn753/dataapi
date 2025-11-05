@@ -55,7 +55,7 @@ Your Website Team
     res.status(200).send("Email sent successfully.");
   } catch (error) {
     console.error("Mail sending error:", error);
-    res.status(500).send("Failed to send email.");
+    res.status(500).send("Failed to send email. "+error);
   }
 });
 
