@@ -50,6 +50,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var authRoutes = require('./routes/auth');
 var raceRoutes = require('./routes/race');
+var mailRoutes =require('./routes/genericMail');
 
 var app = express();
 app.use(cors()); // Enable CORS for all endpoints
@@ -77,7 +78,8 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRoutes);
 app.use('/raceManagement',raceRoutes);
-
+app.use('/mail',mailRoutes);
+// Error handling middleware')
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
