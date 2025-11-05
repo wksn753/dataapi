@@ -13,9 +13,9 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/sendWPMail", async (req, res) => {
-  const { email, username } = req.body;
+  const { email, name } = req.body;
 
-  if (!email || !username) {
+  if (!email || !name) {
     return res.status(400).send("Email and username are required.");
   }
 
@@ -29,7 +29,7 @@ Hello,
 
 You have a new subscriber on your website!
 
-👤 Name: ${username}
+👤 Name: ${name}
 📧 Email: ${email}
 
 They’ve just signed up to stay updated.
@@ -43,7 +43,7 @@ Your Website Team
           <p>Hello,</p>
           <p>You have a new subscriber on your website!</p>
           <ul>
-            <li><strong>Name:</strong> ${username}</li>
+            <li><strong>Name:</strong> ${name}</li>
             <li><strong>Email:</strong> ${email}</li>
           </ul>
           <p>They’ve just signed up to stay updated with your latest content or offers.</p>
