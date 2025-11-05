@@ -1,5 +1,5 @@
 const router = require("express").Router();
-import { MailtrapClient } from "mailtrap";
+const { MailtrapClient } =require("mailtrap");
 
 const TOKEN = process.env["mailtoken"];
 const SENDER_EMAIL = "wksn75321@gmail.com";
@@ -59,4 +59,4 @@ Your Website Team
   }
 });
 
-export default router;
+module.exports = router;
