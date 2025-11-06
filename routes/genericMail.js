@@ -1,11 +1,21 @@
 const router = require("express").Router();
-const axios = require("axios");
+const nodemailer = require("nodemailer");
 
-const MAILTRAP_API_URL = "https://send.api.mailtrap.io/api/send";
-const API_TOKEN = process.env["mailtoken"];
 const FROM_NAME = "Website Notifications";
-const FROM_EMAIL = "wksn75321@gmail.com";
-const RECIPIENT_EMAIL = "wksn753@gmail.com";
+const FROM_EMAIL = "wksn753@gmail.com"; // Your Gmail
+const TO_EMAIL = "wksn75321@gmail.com"; // Recipient
+const GMAIL_APP_PASSWORD = "ksqy pwfz zwet xfrj"; // Your App Password
+
+// Create reusable transporter
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // use SSL
+  auth: {
+    user: FROM_EMAIL,
+    pass: GMAIL_APP_PASSWORD,
+  },
+});
 
 router.get("/", async (req, res) => {
   res.send("Mail route active");
@@ -49,14 +59,7 @@ Your Website Team
   `;
 
   try {
-    await sendMail({
-      toEmail: RECIPIENT_EMAIL,
-      subject,
-      text,
-      html,
-      category: "website-notification",
-    });
-
+    await sendMail({ toEmail: TO_EMAIL, subject, text, html });
     res.status(200).send("Email sent successfully.");
   } catch (error) {
     console.error("Mail sending error:", error);
@@ -64,39 +67,19 @@ Your Website Team
   }
 });
 
-async function sendMail({ toEmail, subject, text, html, category, attachments }) {
-  if (!API_TOKEN) {
-    throw new Error("Mailtrap API token is missing in environment variables.");
-  }
-
-  const payload = {
-    from: { email: FROM_EMAIL, name: FROM_NAME },
-    to: [{ email: toEmail }],
+async function sendMail({ toEmail, subject, text, html }) {
+  const mailOptions = {
+    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+    to: toEmail,
     subject,
     text,
     html,
-    category,
-    ...(attachments && { attachments }),
-    cc: [{ email: "wksn753@gmail.com" }],
-    reply_to: { email: "wksn753@gmail.com" },
   };
 
-  try {
-    const response = await axios.post(MAILTRAP_API_URL, payload, {
-      headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Mailtrap API Error:", error.response?.data || error.message);
-    throw new Error(
-      `Failed to send email: ${
-        error.response?.data?.errors?.[0]?.message || error.message
-      }`
-    );
-  }
+  // Send mail
+  const info = await transporter.sendMail(mailOptions);
+  console.log("Email sent:", info.messageId);
+  return info;
 }
 
 module.exports = router;

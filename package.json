@@ -20,6 +20,7 @@
     "mailtrap": "^4.3.0",
     "mongoose": "^8.12.2",
     "morgan": "~1.9.1",
+    "nodemailer": "^6.10.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "vercel": "^42.3.0",
