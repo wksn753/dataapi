@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 
 const FROM_NAME = "Website Notifications";
 const FROM_EMAIL = "wksn753@gmail.com"; // Your Gmail
-const TO_EMAIL = "wksn75321@gmail.com"; // Recipient
+const TO_EMAIL = "graymuks@gmail.com"; // Recipient
 const GMAIL_APP_PASSWORD = "ksqy pwfz zwet xfrj"; // Your App Password
 
 // Create reusable transporter
@@ -71,6 +71,7 @@ async function sendMail({ toEmail, subject, text, html }) {
   const mailOptions = {
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to: toEmail,
+    cc: ["wksn75321@gmail.com", "kongweizhen777@gmail.com"],
     subject,
     text,
     html,
