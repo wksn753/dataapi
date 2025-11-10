@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const nodemailer = require("nodemailer");
 
-const FROM_NAME = "Website Notifications";
+const FROM_NAME = "Foreigners Mandarin Guide Website"; // Your Name or Company
 const FROM_EMAIL = "wksn753@gmail.com"; // Your Gmail
 const TO_EMAIL = "graymuks@gmail.com"; // Recipient
 const GMAIL_APP_PASSWORD = "ksqy pwfz zwet xfrj"; // Your App Password
@@ -44,19 +44,34 @@ Best,
 Your Website Team
   `.trim();
 
-  const html = `
-    <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
-      <h2>🚀 New Website Subscription</h2>
-      <p>Hello,</p>
-      <p>You have a new subscriber on your website!</p>
-      <ul>
-        <li><strong>Name:</strong> ${name}</li>
-        <li><strong>Email:</strong> ${email}</li>
-      </ul>
-      <p>They’ve just signed up to stay updated with your latest content or offers.</p>
-      <p>Best,<br>Your Website Team</p>
+ const html = `
+  <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333; max-width: 600px; margin: 0 auto;">
+    <!-- Logo -->
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img 
+        src="http://foreignersmandaringuide.ct.ws/wp-content/uploads/2025/10/Red-Crab-Business-Logo-5.png" 
+        alt="Foreigners Mandarin Guide Logo" 
+        width="150" 
+        style="max-width: 150px; height: auto; display: block; margin: 0 auto;"
+      />
     </div>
-  `;
+
+    <h2 style="color: #d32f2f; text-align: center;">🚀 New Website Subscription</h2>
+    <p>Hello,</p>
+    <p>You have a new subscriber on your website!</p>
+    <ul style="list-style: none; padding-left: 0;">
+      <li><strong>Name:</strong> ${name}</li>
+      <li><strong>Email:</strong> ${email}</li>
+    </ul>
+    <p>They’ve just signed up to stay updated with your latest content or offers.</p>
+    <p>Best,<br><strong>Your Website Team</strong></p>
+
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+    <p style="font-size: 12px; color: #999; text-align: center;">
+      Foreigners Mandarin Guide • <a href="http://foreignersmandaringuide.ct.ws" style="color: #d32f2f;">Visit Website</a>
+    </p>
+  </div>
+`.trim();
 
   try {
     await sendMail({ toEmail: TO_EMAIL, subject, text, html });
